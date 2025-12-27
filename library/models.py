@@ -1,5 +1,6 @@
 from django.db import models
-from confg.settings import AUTH_USER_MODEL  
+from confg.settings import AUTH_USER_MODEL
+import random  
 
 
 class Category(models.Model):
@@ -28,6 +29,8 @@ class Author(models.Model):
     def __str__(self):
         return self.name
 
+def isbn_generator():
+    return ''.join(str(random.randint(0, 9)) for _ in range(13))
 class Book(models.Model):
     title = models.CharField(max_length=120)
     author = models.ForeignKey(Author, on_delete=models.CASCADE, related_name='books')
@@ -45,6 +48,15 @@ class Book(models.Model):
 
     def __str__(self):
         return self.title
+    
+    def save(self, *args, **kwargs):
+        if not self.isbn:
+            while True:
+                isbn = isbn_generator()
+                if not Book.objects.filter(isbn=isbn).exists():
+                    self.isbn = isbn
+                    break
+        super().save(*args, **kwargs)
     
 class Borrow(models.Model):
     STATUS_CHOICES = (

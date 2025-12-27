@@ -1,0 +1,17 @@
+{% extends 'base.html' %}
+{% block title %}{{title}}{% endblock %}
+
+{% block content %}
+<div
+  class="d-flex justify-content-center align-items-center"
+  style="min-height: 100vh"
+>
+  <form method="post" class="alert alert-danger" role="alert">
+    {% csrf_token %}
+    <div class="p-4">
+      <h3 class="mb-5">Are you sure you want to delete book '{{book.title}}'?</h3>
+      <button class="btn btn-danger mb-3 btn-lg">Confirm</button>
+    </div>
+  </form>
+</div>
+{% endblock %}

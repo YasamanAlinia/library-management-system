@@ -1,0 +1,49 @@
+{% extends 'base.html' %} {% block title %}{{title}}{% endblock %} 
+{% block content %}
+<div
+  class="d-flex justify-content-center align-items-center"
+  style="min-height: 100vh"
+>
+  <div class="row">
+    <div class="col-12 m-5" style="max-width: 1000px">
+      <div class="card">
+        <div class="card-header">
+          <h2>Detail</h2>
+        </div>
+        <div class="card-body">
+          <h3 class="card-title">Title: {{book.title}}</h3>
+          <p class="card-subtitle mb-2 text-muted">{{book.isbn}}</p>
+          <h6 class="card-text">
+            <p>Author: <span class="text-muted">{{book.author}}</span></p>
+            <p>Category: <span class="text-muted">{{book.category}}</span></p>
+          </h6>
+          <p>
+            status: {% if is_borrowed %} <span class="text-muted">borrowed</span> {% else %}
+            <span class="text-muted">available</span> {% endif %}
+          </p>
+          <blockquote class="blockquote mb-3">
+            <footer class="blockquote-footer">
+              <small>Publish Date - {{book.publish_date}}</small>
+            </footer>
+          </blockquote>
+          {% if user.is_authenticated %}
+          <a href="#" class="btn btn-secondary mb-3 btn-sm">Borrow</a>
+          {% endif %}
+          {% if user.is_authenticated and perms.library.change_book %}
+          <a href="{% url 'edit-book' book.pk %}" class="btn btn-primary mb-3 btn-sm">Edit</a>
+          {% endif %}
+          {% if user.is_authenticated and perms.library.delete_book %}
+          <a href="{% url 'delete-book' book.pk %}" class="btn btn-danger mb-3 btn-sm">Delete</a>
+          {% endif %}
+          <p>
+            <a href="{% url 'book-list' %}" class="card-link link-underline link-underline-opacity-0">Back to list</a>
+          </p>
+        </div>
+        <div class="card-footer text-muted text-center">
+          {{book.created_time}}
+        </div>
+      </div>
+    </div>
+  </div>
+  {% endblock %}
+</div>

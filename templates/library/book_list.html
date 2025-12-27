@@ -1,0 +1,75 @@
+{% extends 'base.html' %} 
+{% block title %}{{title}}{% endblock %} 
+{% block content %}
+<div
+  class="d-flex justify-content-center align-items-center"
+  style="min-height: 100vh"
+>    
+  <div class="row">
+    <div class="col-12 mb-2">
+      <form method="GET" class="d-flex align-items-center" action="{% url 'book-list' %}">
+          <input type="text" class="form-control form-control-md w-auto me-2" name="q" placeholder="Search books...">
+          <button type="submit" class="btn btn-primary btn-md">search</button>
+        </form>
+    </div>
+    <div class="border rounded col-12" style="max-width: 1000px">
+      <table class="table table-striped table-hover w-100 text-center">
+        <thead>
+          <tr>
+            <th scope="col">#</th>
+            <th scope="col">Title</th>
+            <th scope="col">Author</th>
+            <th scope="col">Category</th>
+            <th scope="col">Publish date</th>
+            {% if user.is_authenticated %}
+            <th scope="col"></th>
+            {% endif %}
+          </tr>
+        </thead>
+        <tbody class="table-group-divider">
+          {% for book in books %}
+          <tr>
+            <th scope="row">{{book.id}}</th>
+            <td>{{book.title}}</td>
+            <td>{{book.author}}</td>
+            <td>{{book.category}}</td>
+            <td>{{book.publish_date}}</td>
+            {% if user.is_authenticated %}
+            <td>
+              <a href="{% url 'book-detail' book.pk %}" class="btn btn-secondary mb-3 btn-sm">Detail</a>
+            </td>
+            {% endif %}
+          </tr>
+          {% empty %}
+          <tr>
+            <td colspan="6">No book found.</td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+      <p>Total: {{total_books}}</p>
+    </div>
+    {% if user.is_authenticated and perms.library.add_book %}
+    <div class="col-12 p-3">
+      <a href="{% url 'add-book' %}" class="text-light btn btn-success btn-sm">Add New Book</a>
+    </div>
+    {% endif %}
+    <div class="pagination col-12 d-flex justify-content-center align-items-center">
+      <span class="step-links">
+        {% if page_obj.has_previous %}
+        <a href="?page=1">&laquo; First</a>
+        <a href="?page={{page_obj.previous_page_number}}">previous</a>
+        {% endif %}
+
+        <span class="current">
+          page {{page_obj.number}} of {{page_obj.paginator.num_pages}}
+        </span>
+        {% if page_obj.has_next %}
+        <a href="?page={{page_obj.next_page_number}}">next</a>
+        <a href="?page={{page_obj.paginator.num_pages}}">last &raquo;</a>
+        {% endif %}
+      </span>
+    </div>
+  </div>
+</div>
+{% endblock %}

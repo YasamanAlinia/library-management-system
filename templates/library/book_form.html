@@ -1,0 +1,23 @@
+{% extends 'base.html' %}
+{% block title %}{{title}}{% endblock %} 
+{% block content %}
+<div
+  class="d-flex justify-content-center align-items-center"
+  style="min-height: 100vh"
+>
+  <form class="border rounded p-3" method="post">
+    {% csrf_token %}
+    {% for field in form %}
+    <h4>{{field.label_tag}}</h4>
+    <h5>{{field}}</h5>
+    {% if field.help_text %}
+    <small class="text-muted">{{field.help_text}}</small>
+    {% endif %}
+    {% for error in field.errors %}
+    <small class="text-danger">{{error}}</small>
+    {% endfor %}
+    {% endfor %}
+    <button type="submit" class="btn btn-primary">Submit</button>
+  </form>
+</div>
+{% endblock %}
