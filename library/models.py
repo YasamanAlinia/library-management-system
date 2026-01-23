@@ -77,3 +77,15 @@ class Borrow(models.Model):
 
     def __str__(self):
         return f"{self.user.username} borrowed {self.book.title}"
+
+    def mark_borrowed(self):
+        self.status = 'B'
+        self.book.available = False
+        self.book.save()
+        self.save()
+
+    def mark_returned(self):
+        self.status = 'R'
+        self.book.available = True
+        self.book.save()
+        self.save()

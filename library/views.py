@@ -48,7 +48,7 @@ class BookDetailView(DetailView):
                     status = 'B',
                 )
             ),
-            return_book = Exists(
+            user_has_borrowed = Exists(
                 Borrow.objects.filter(
                     book = OuterRef('pk'),
                     user = self.request.user,
@@ -153,10 +153,7 @@ class BorrowCreateView(LoginRequiredMixin, PermissionRequiredMixin, CreateView):
         with transaction.atomic():
             form.instance.book = self.book
             form.instance.user = self.request.user
-            form.instance.status = 'B'
-
-            self.book.available = False
-            self.book.save()
+            form.instance.mark_borrow()
 
         return super().form_valid(form)
     
@@ -177,8 +174,7 @@ class LoanRecordUpdateView(LoginRequiredMixin, PermissionRequiredMixin, UpdateVi
     def form_valid(self, form):
         with transaction.atomic():
             if form.instance.status == 'R':
-                form.instance.book.available = True
-                form.instance.book.save()
+                form.instance.mark_returned()
             return super().form_valid(form)
     
     def get_context_data(self, **kwargs):
