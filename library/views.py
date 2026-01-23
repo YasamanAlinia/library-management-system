@@ -62,7 +62,7 @@ class BookDetailView(DetailView):
         context.update({
             'title': f'{self.object.title} Detail',
             'is_borrowed': self.object.is_borrowed,
-            'return_book': self.object.return_book,
+            'can_return': self.object.return_book,
         })
         return context
 
@@ -147,6 +147,8 @@ class BorrowCreateView(LoginRequiredMixin, PermissionRequiredMixin, CreateView):
 
     def dispatch(self, request, *args, **kwargs):
         self.book = get_object_or_404(Book, pk=kwargs['pk'])
+        if not self.book.available:
+            return self.handle_no_permission()
         return super().dispatch(request, *args, **kwargs)
 
     def form_valid(self, form):
@@ -176,6 +178,14 @@ class LoanRecordUpdateView(LoginRequiredMixin, PermissionRequiredMixin, UpdateVi
             if form.instance.status == 'R':
                 form.instance.mark_returned()
             return super().form_valid(form)
+    
+    def dispatch(self, request, *args, **kwargs):
+        borrow = self.get_object()
+
+        if request.user.role == 'M' and borrow.user != request.user:
+            return self.handle_no_permission()
+
+        return super().dispatch(request, *args, **kwargs)
     
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
