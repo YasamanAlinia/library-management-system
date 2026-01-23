@@ -24,5 +24,9 @@ class CustomUserAdmin(UserAdmin):
         'first_name', 
         'last_name',
     )
-
-
+    fieldsets = UserAdmin.fieldsets + (
+        ('Role', {'fields': ('role',)}),
+    )
+    add_fieldsets = UserAdmin.add_fieldsets + (
+        ('Role', {'fields': ('role',)}),
+    )

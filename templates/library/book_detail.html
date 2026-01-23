@@ -26,8 +26,11 @@
               <small>Publish Date - {{book.publish_date}}</small>
             </footer>
           </blockquote>
-          {% if user.is_authenticated %}
-          <a href="#" class="btn btn-secondary mb-3 btn-sm">Borrow</a>
+          {% if user.is_authenticated and book.available and not is_borrowed%}
+          <a href="{% url 'add-borrow' book.pk %}" class="btn btn-secondary mb-3 btn-sm">Borrow</a>
+          {% endif %}
+          {% if user.is_authenticated and not book.available and return_book%}
+          <a href="#" class="btn btn-danger mb-3 btn-sm">Return</a>
           {% endif %}
           {% if user.is_authenticated and perms.library.change_book %}
           <a href="{% url 'edit-book' book.pk %}" class="btn btn-primary mb-3 btn-sm">Edit</a>

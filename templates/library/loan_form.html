@@ -1,0 +1,32 @@
+{% extends 'base.html' %}
+{% block title %}{{title}}{% endblock %}
+
+{% block content %}
+<div
+  class="d-flex justify-content-center align-items-center"
+  style="min-height: 100vh"
+>
+  <div class="row">
+    <div class="col-12">
+    <form class="border rounded p-3" method="post">
+    {% csrf_token %}
+    {% for field in form %}
+    <h4>{{field.label_tag}}</h4>
+    <h5>{{field}}</h5>
+    {% if field.help_text %}
+    <small class="text-muted">{{field.help_text}}</small>
+    {% endif %}
+    {% for error in field.errors %}
+    <small class="text-danger">{{error}}</small>
+    {% endfor %}
+    {% endfor %}
+    <button type="submit" class="btn btn-primary">Submit</button>
+    
+  </form>
+  </div>
+  <div class="col-12">
+    <a href="{% url 'book-list' %}" class="card-link link-underline link-underline-opacity-0">Back to list</a>
+  </div>
+  </div>
+</div>
+{% endblock %}

@@ -1,0 +1,28 @@
+{% extends 'base.html' %}
+{% block title %}{{title}}{% endblock %}
+
+{% block content %}
+<div class="col-12 mb-2 p-3">
+      <form method="GET" class="d-flex align-items-center" action="{% url 'loan-list' %}">
+          <input type="text" class="form-control form-control-md w-auto me-2" name="q" placeholder="Search...">
+          <button type="submit" class="btn btn-primary btn-md">search</button>
+      </form>
+</div>
+<div class="p-3">
+{% for record in records %}
+<h5 class="text-dark">title: {{record.book.title}}</h5>
+<span class="text-muted">{{record.book.isbn}}</span>
+<h6 class="text-dark">Borrower info:</h6>
+<pre>
+    <span><i class="bi bi-person"></i> {{record.user.username}}</span>
+    <span><i class="bi bi-envelope"></i> {{record.user.email}}</span>
+</pre>
+<a href="{% url 'borrowed-record-edit' record.pk %}" class="btn btn-sm btn-info text-light">edit</a>
+<hr>
+{% empty %}
+<h5>No record found</h5>
+<a href="{% url 'book-list' %}" class="card-link link-underline link-underline-opacity-0">back to book list</a>
+{% endfor %}
+</div>
+
+{% endblock %}

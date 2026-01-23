@@ -1,10 +1,7 @@
 {% extends 'base.html' %} 
 {% block title %}{{title}}{% endblock %} 
 {% block content %}
-<div
-  class="d-flex justify-content-center align-items-center"
-  style="min-height: 100vh"
->    
+<div class="p-3">    
   <div class="row">
     <div class="col-12 mb-2">
       <form method="GET" class="d-flex align-items-center" action="{% url 'book-list' %}">
@@ -12,7 +9,7 @@
           <button type="submit" class="btn btn-primary btn-md">search</button>
         </form>
     </div>
-    <div class="border rounded col-12" style="max-width: 1000px">
+    <div class="col-12" style="max-width: 1000px">
       <table class="table table-striped table-hover w-100 text-center">
         <thead>
           <tr>
@@ -22,6 +19,7 @@
             <th scope="col">Category</th>
             <th scope="col">Publish date</th>
             {% if user.is_authenticated %}
+            <th scope="col">Available</th>
             <th scope="col"></th>
             {% endif %}
           </tr>
@@ -35,6 +33,11 @@
             <td>{{book.category}}</td>
             <td>{{book.publish_date}}</td>
             {% if user.is_authenticated %}
+            {% if book.available %}
+            <td><i class="bi bi-check-circle text-success"></i></td>
+            {% else %}
+            <td><i class="bi bi-x-circle text-danger"></i></td>
+            {% endif %}
             <td>
               <a href="{% url 'book-detail' book.pk %}" class="btn btn-secondary mb-3 btn-sm">Detail</a>
             </td>
@@ -52,6 +55,7 @@
     {% if user.is_authenticated and perms.library.add_book %}
     <div class="col-12 p-3">
       <a href="{% url 'add-book' %}" class="text-light btn btn-success btn-sm">Add New Book</a>
+      <a href="{% url 'loan-list' %}" class="text-light btn btn-success btn-sm">Borrow status</a>
     </div>
     {% endif %}
     <div class="pagination col-12 d-flex justify-content-center align-items-center">
