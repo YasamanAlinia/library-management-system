@@ -1,33 +1,19 @@
-from django.shortcuts import render, get_object_or_404
+from django.shortcuts import get_object_or_404
 from django.urls import reverse_lazy
-from django.contrib.auth.mixins import LoginRequiredMixin, PermissionRequiredMixin
-from django.db.models import Q
+from .mixins import AuthPermissionMixin, BookStatusMixin, BookListMixin, LoanRecordListMixin
 from django.views.generic import ListView, DetailView, UpdateView, DeleteView, CreateView
 from .models import Book, Borrow
-from django.db.models import Exists, OuterRef
 from django.db import transaction
 from .forms import BookForm, BorrowForm, BorrowMemberForm
 
 
 # Create your views here.
-class BookListView(ListView):
+class BookListView(BookListMixin, ListView):
     model = Book
     context_object_name = 'books'
     template_name = 'library/book_list.html'
     paginate_by = 3
     
-    def get_queryset(self):
-        queryset = Book.objects.all()
-        query = self.request.GET.get('q')
-
-        if query:
-            queryset = queryset.filter(
-                Q(title__icontains=query) |
-                Q(author__name__icontains=query)
-            ).order_by('-title')
-
-        return queryset
-
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context.update({
@@ -36,26 +22,10 @@ class BookListView(ListView):
         })
         return context
     
-class BookDetailView(DetailView):
+class BookDetailView(BookStatusMixin, DetailView):
     model = Book
     context_object_name = 'book'
     template_name = 'library/book_detail.html'
-    def get_queryset(self):
-        return Book.objects.annotate(
-            is_borrowed = Exists(
-                Borrow.objects.filter(
-                    book = OuterRef('pk'),
-                    status = 'B',
-                )
-            ),
-            user_has_borrowed = Exists(
-                Borrow.objects.filter(
-                    book = OuterRef('pk'),
-                    user = self.request.user,
-                    status = 'B',
-                )
-            ) 
-        )
     
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -66,7 +36,7 @@ class BookDetailView(DetailView):
         })
         return context
 
-class BookCreateView(LoginRequiredMixin, PermissionRequiredMixin, CreateView):
+class BookCreateView(AuthPermissionMixin, CreateView):
     model = Book
     form_class = BookForm
     template_name = 'library/book_form.html'
@@ -80,7 +50,7 @@ class BookCreateView(LoginRequiredMixin, PermissionRequiredMixin, CreateView):
         })
         return context
     
-class BookUpdateView(LoginRequiredMixin, PermissionRequiredMixin, UpdateView):
+class BookUpdateView(AuthPermissionMixin, UpdateView):
     model = Book
     form_class = BookForm
     template_name = 'library/book_form.html'
@@ -96,7 +66,7 @@ class BookUpdateView(LoginRequiredMixin, PermissionRequiredMixin, UpdateView):
         })
         return context
     
-class BookDeleteView(LoginRequiredMixin, PermissionRequiredMixin, DeleteView):
+class BookDeleteView(AuthPermissionMixin, DeleteView):
     model = Book
     template_name = 'library/book_delete.html'
     context_object_name = 'book'
@@ -110,28 +80,12 @@ class BookDeleteView(LoginRequiredMixin, PermissionRequiredMixin, DeleteView):
         })
         return context
 
-class LoanRecordListView(LoginRequiredMixin, PermissionRequiredMixin, ListView):
+class LoanRecordListView(AuthPermissionMixin, LoanRecordListMixin, ListView):
     model = Borrow
     context_object_name = 'records'
     template_name = 'library/loan_list.html'
     permission_required = 'view_borrow'
-
-    def get_queryset(self):
-        user = self.request.user
-        if user.role == 'M':
-            queryset = Borrow.objects.filter(status='B', user=user)
-        else:
-            queryset = Borrow.objects.filter(status='B')
-        query = self.request.GET.get('q')
-
-        if query:
-            queryset = queryset.filter(
-                Q(book__title__icontains=query) |
-                Q(user__username__icontains=query) |
-                Q(book__isbn__icontains=query)
-            ).order_by('-book__title')
-
-        return queryset
+    
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context.update({
@@ -139,7 +93,7 @@ class LoanRecordListView(LoginRequiredMixin, PermissionRequiredMixin, ListView):
         })
         return context
 
-class BorrowCreateView(LoginRequiredMixin, PermissionRequiredMixin, CreateView):
+class BorrowCreateView(AuthPermissionMixin, CreateView):
     model = Borrow
     fields = ()
     template_name = 'library/loan_form.html'
@@ -162,7 +116,7 @@ class BorrowCreateView(LoginRequiredMixin, PermissionRequiredMixin, CreateView):
     def get_success_url(self):
         return reverse_lazy('book-detail', kwargs={'pk': self.book.pk})
     
-class LoanRecordUpdateView(LoginRequiredMixin, PermissionRequiredMixin, UpdateView):
+class LoanRecordUpdateView(AuthPermissionMixin, UpdateView):
     model = Borrow
     template_name = 'library/loan_form.html'
     permission_required = 'change_borrow'
