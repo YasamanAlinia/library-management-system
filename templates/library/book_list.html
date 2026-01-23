@@ -58,22 +58,7 @@
       <a href="{% url 'loan-list' %}" class="text-light btn btn-success btn-sm">Borrow status</a>
     </div>
     {% endif %}
-    <div class="pagination col-12 d-flex justify-content-center align-items-center">
-      <span class="step-links">
-        {% if page_obj.has_previous %}
-        <a href="?page=1">&laquo; First</a>
-        <a href="?page={{page_obj.previous_page_number}}">previous</a>
-        {% endif %}
-
-        <span class="current">
-          page {{page_obj.number}} of {{page_obj.paginator.num_pages}}
-        </span>
-        {% if page_obj.has_next %}
-        <a href="?page={{page_obj.next_page_number}}">next</a>
-        <a href="?page={{page_obj.paginator.num_pages}}">last &raquo;</a>
-        {% endif %}
-      </span>
-    </div>
+    {% include 'pagination_base.html' %}
   </div>
 </div>
 {% endblock %}

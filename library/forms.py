@@ -2,13 +2,16 @@ from django import forms
 from .models import Book, Borrow
 
 class FormStyleMixin:
-     def __init__(self, *args, **kwargs):
+    """
+    Add consistent bootstrap styling to all form fields
+    """
+    default_class = "custom-input text-secondary border rounded p-2"
+
+    def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         for field in self.fields.values():
-            classes = field.widget.attrs.get('class', '')
-            field.widget.attrs['class'] = (
-                f'{classes} custom-input text-secondary border rounded p-2'
-            ).strip()
+            existing_classes = field.widget.attrs.get('class', '')
+            field.widget.attrs['class'] = f"{existing_classes} {self.default_class}".strip()
 class BookForm(FormStyleMixin, forms.ModelForm ):
     class Meta:
         model = Book
