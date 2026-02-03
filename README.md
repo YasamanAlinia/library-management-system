@@ -109,7 +109,7 @@ python manage.py runserver
 
 ---
 
-## Future Improvements (Optional)
+## Future Improvements
 
 - Due date for borrowed books
 - Support multiple copies per book
